@@ -124,7 +124,8 @@ case $(uname -s) in
 
                 if [ $IS_CHARGING -eq 0 ]
                 then
-                    ICON="🔋"
+                    # ICON="🔋"
+                    ICON="⬇️ "
                 else
                     ICON="⚡"
                 fi
@@ -144,5 +145,5 @@ BATTERY_STATUS=`battery_status $1`
 if [ -n "$CUTE_BATTERY_INDICATOR" ]; then
     cutinate $BATTERY_STATUS
 else
-    echo ${BATTERY_STATUS}%
+    echo "${BATTERY_STATUS}%"
 fi
