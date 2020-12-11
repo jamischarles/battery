@@ -5,6 +5,8 @@ HEART_EMPTY=♡
 [ -z "$NUM_HEARTS" ] &&
     NUM_HEARTS=5
 
+IS_CHARGING=-1
+
 cutinate()
 {
     perc=$1
@@ -86,8 +88,10 @@ case $(uname -s) in
     "Darwin")
         case $1 in
             "Discharging")
+                IS_CHARGING=0
                 ext="No";;
             "Charging")
+                IS_CHARGING=1
                 ext="Yes";;
         esac
 
@@ -96,12 +100,16 @@ case $(uname -s) in
         sed -e 's/= //g' -e 's/"//g' | \
         sort | \
         while read key value; do
+            # echo "key: $key"
+            # echo "value: $value"
             case $key in
                 "MaxCapacity")
                     export maxcap=$value;;
                 "CurrentCapacity")
                     export curcap=$value;;
                 "ExternalConnected")
+            # echo "key: $key"
+            # echo "value: $value"
                     if [ -n "$ext" ] && [ "$ext" != "$value" ]; then
                         exit
                     fi
@@ -113,7 +121,16 @@ case $(uname -s) in
                 ;;
             esac
             if [[ -n "$maxcap" && -n $curcap ]]; then
-                echo $(( 100 * $curcap / $maxcap ))
+
+                if [ $IS_CHARGING -eq 0 ]
+                then
+                    ICON="🔋"
+                else
+                    ICON="⚡"
+                fi
+
+                # this is where the actual % gets logged from
+                echo "$ICON$(( 100 * $curcap / $maxcap ))"
                 break
             fi
         done
@@ -122,6 +139,7 @@ esac
 
 BATTERY_STATUS=`battery_status $1`
 [ -z "$BATTERY_STATUS" ] && exit
+
 
 if [ -n "$CUTE_BATTERY_INDICATOR" ]; then
     cutinate $BATTERY_STATUS
